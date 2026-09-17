@@ -421,15 +421,6 @@ footer img{width:92px;height:auto}
               <option>기타</option>
             </select>
           </label>
-
-          <label>화면 범위
-            <select id="framing">
-              <option>전신</option>
-              <option>반신</option>
-              <option>45도</option>
-              <option>얼굴 중심</option>
-            </select>
-          </label>
         </div>
 
         <label>외형 특징
@@ -663,8 +654,11 @@ function setFields(data) {
   window.scrollTo({ top: document.querySelector("#makerForm").offsetTop - 20, behavior: "smooth" });
 }
 
-document.querySelectorAll("[data-sample]").forEach(btn => {
-  btn.addEventListener("click", () => setFields(samples[btn.dataset.sample]));
+document.querySelectorAll("[data-sample]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const sample = samples[btn.dataset.sample];
+    if (sample) setFields(sample);
+  });
 });
 
 $("resetBtn").addEventListener("click", () => {
@@ -673,7 +667,6 @@ $("resetBtn").addEventListener("click", () => {
   $("background").value = "흰색 배경";
   $("textInImage").value = "글자 없음";
   $("results").classList.add("hidden");
-  $("compareOneLine").value = "";
 });
 
 function val(id, fallback="") {
@@ -713,9 +706,7 @@ function buildPrompt() {
     d.action ? `자주 하는 행동: ${d.action}` : "",
     `화풍: ${d.artStyle}`,
     `화면 범위: ${d.framing}`,
-    `출력 형식: ${d.outputFormat}`
-  ].filter(Boolean).join("
-");
+  ].filter(Boolean).join("\\n");
 
   const formatGuide = `캐릭터 1명을 중심으로 표현하고, ${d.framing} 구도로 보여주세요. 처음 캐릭터를 설정하는 기준 이미지이므로 얼굴형, 눈 크기, 헤어스타일 또는 털의 모양, 몸 비율, 의상, 소품, 대표 색상이 명확하게 보이도록 표현해주세요.`;
 
@@ -734,8 +725,7 @@ function buildPrompt() {
     `배경은 ${d.background}, ${d.textInImage}.`,
     formatGuide,
     `여러 장면을 생성할 때도 얼굴 형태, 헤어/털의 특징, 의상, 소품, 대표 색상과 전체 캐릭터 디자인이 동일하게 유지되도록 표현해주세요.`
-  ].filter(Boolean).join("
-");
+  ].filter(Boolean).join("\\n");
 
   return { oneLine, lockInfo, detailPrompt, consistencyTip };
 }
